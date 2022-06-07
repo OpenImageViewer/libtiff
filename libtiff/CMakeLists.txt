@@ -114,8 +114,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
                     ${TIFF_INCLUDES})
 
-add_library(tiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
+if (TIFF_BUILD_SHARED_LIBS)
+    add_library(tiff SHARED ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
             ${tiff_port_SOURCES} libtiff.def)
+else()
+  add_library(tiff STATIC ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
+            ${tiff_port_SOURCES} libtiff.def)
+endif()
+
+
 target_link_libraries(tiff ${TIFF_LIBRARY_DEPS})
 set_target_properties(tiff PROPERTIES SOVERSION ${SO_COMPATVERSION})
 if(NOT CYGWIN)
@@ -139,7 +146,12 @@ install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 
 if(cxx)
-  add_library(tiffxx ${tiffxx_SOURCES} ${tiffxx_HEADERS})
+if (TIFF_BUILD_SHARED_LIBS)
+  add_library(tiffxx SHARED ${tiffxx_SOURCES} ${tiffxx_HEADERS})
+else()
+  add_library(tiffxx STATIC ${tiffxx_SOURCES} ${tiffxx_HEADERS})
+endif()
+
   target_link_libraries(tiffxx tiff)
   set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
   if(NOT CYGWIN)
